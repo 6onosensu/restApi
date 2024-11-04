@@ -11,6 +11,10 @@ const games = [
     {id: 3, name: "Seiklus"},
 ]
 
+app.get('/', (request, response) => {
+    response.send("I want to play a game!")
+})
+
 //get method for any and all games in array
 app.get('/games',(req, res) =>
 {
@@ -19,7 +23,7 @@ app.get('/games',(req, res) =>
 
 //get method returns one game from array, by id. if id doesnt exist returns statuscode 404 - notfound
 app.get('/games/:id', (req, res) => {
-    if (typeof games[req.param.id - 1] === 'undefined')
+    if (typeof games[req.params.id - 1] === 'undefined')
     {
         return res.status(404).send({error: "Game not found, game not gaming"})
     }
@@ -72,7 +76,7 @@ app.put('/games/:id', (req, res) => {
     }
     games[index].name = req.body.name;
     games[index].price = req.body.price;
-    
+
     res.status(200).send(games[index]);
 })
 
