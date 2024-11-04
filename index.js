@@ -21,13 +21,15 @@ app.get('/games',(req, res) =>
 app.get('/games/:id', (req, res) => {
     if (typeof games[req.param.id - 1] === 'undefined')
     {
-        return res.status(404).send({error: "Game not found"})
+        return res.status(404).send({error: "Game not found, game not gaming"})
     }
     res.send(games[req.params.id - 1])
 })
 
+//post method, adds a new game into the array. if parameters are missing
+//returns bad request - 400
 app.post('/games', (req, res) => {
-    if (req.body.name || !req.body.price) {
+    if (!req.body.name || !req.body.price) {
         return res.status(400).send({
             error: 'One or multiple parameters missing'
         });
@@ -38,37 +40,43 @@ app.post('/games', (req, res) => {
         name: req.body.name,
     }
     games.push(newGame)
-    res.status(201).location('localhost:8080/games' + (games.length - 1)).send(newGame)
+    res.status(201).location('localhost:8080/games/' + (games.length - 1)).send(newGame)
 })
 
-// delete a game, where id is specified. if game is not found returns statuscode 404 notfound, otherwise retutns success 204 - no content
+// deletes a game, where id is specified. if game is not found, returns statuscode 404 notfound, otherwise returns success 204 - no content
 app.delete('/games/:id', (req, res) =>
 {
     if (typeof games[req.params.id - 1] === 'undefined') {
-        return res.status(404).send({error: "Game not found, no gaming for you"})
+        return res.status(404).send({
+            error: 'Game not found, no gaming for you'
+        })
     }
     games.splice(req.params.id -1, 1);
     res.status(204).send({
-        error: 'Content not containing (no content)'
+        error: 'Content not contenting (no content)'
     })
 })
 
 app.put('/games/:id', (req, res) => {
-    if (typeof games[req.params.id - 1] === 'undefined') {
+    const index = parseInt(req.params.id) - 1;
+    if (!games[index]) {
         return res.status(404).send({
             error: "Game not found, no gaming for you"
-        })
+        });
     }
-    let newGame = {
-        price: req.body.price,
-        name: req.body.name,
+    //if body has the necessary fields
+    if (!req.body.name || !req.body.price) {
+        return res.status(400).send({
+            error: 'One or multiple parameters missing'
+        });
     }
-    games.push(newGame)
-
+    games[index].name = req.body.name;
+    games[index].price = req.body.price;
     
+    res.status(200).send(games[index]);
 })
 
 //define the address upon which the app is running
 app.listen(8080, () => {
-    console.log('Api tootab adresil: localhost:8080/games')
+    console.log('Api tootab aadressil: http://localhost:8080')
 })
